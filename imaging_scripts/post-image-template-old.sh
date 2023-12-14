@@ -3,7 +3,7 @@
 #SBATCH --output={{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}-ips-post-image.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node={{n_core}}
-#SBATCH --time=3:00:00
+#SBATCH --time=1:00:00
 #SBATCH --clusters=garrawarla
 #SBATCH --partition=workq
 #SBATCH --account=mwasci
