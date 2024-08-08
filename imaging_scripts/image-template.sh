@@ -10,7 +10,7 @@
 #SBATCH --export=NONE
 #SBATCH --gres=tmp:800g
 
-set -euEo pipefail
+set -euxEo pipefail
 
 # In case of failure
 trap 'ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -l {{DB_dir}}/log_image.sqlite --status Failed --note \"Failed during imaging\""' ERR
