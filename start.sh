@@ -11,7 +11,7 @@ year=$3
 out_dir=/scratch/mwasci/awaszewski/pipeline/${year}/${obsid}
 
 container=/software/projects/mwasci/awaszewski/ips_post.img
-scripts_dir=/scratch/mwasci/awaszewski/pipeline/imaging_scripts/
+scripts_dir=/software/projects/mwasci/awaszewski/imaging_scripts/
 
 echo "Creating first slurm script"
 singularity exec -B $PWD ${container} jinja2 ${scripts_dir}/image-template.sh ${scripts_dir}/pipeline-info.yaml --format=yaml \
