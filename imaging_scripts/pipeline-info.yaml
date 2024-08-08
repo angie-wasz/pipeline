@@ -9,9 +9,9 @@ freq: 121-132
 pols:
         - XX
         - YY
-container: /scratch/mwasci/awaszewski/ips_post.img
+container: /software/projects/mwasci/awaszewski/ips_post.img
 mem: 50
-# imageing parameters
+# Imaging parameters
 niter: 100000
 minuv_l: 50
 taper_inner_tukey: 50

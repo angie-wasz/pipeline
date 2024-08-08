@@ -1,16 +1,16 @@
 #!/bin/bash -l
 #SBATCH --job-name=ips-post-image-{{obsid}}
-#SBATCH --output={{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}-ips-post-image.out
+#SBATCH --output={{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}-post-image.out
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node={{n_core}}
-#SBATCH --time=3:00:00
+#SBATCH --time=03:00:00
 #SBATCH --clusters=garrawarla
 #SBATCH --partition=workq
 #SBATCH --account=mwasci
 #SBATCH --export=NONE
 #SBATCH --gres=tmp:100g
 
-set -exE
+set -exE 
 
 ##########
 # Preamble
@@ -18,13 +18,24 @@ set -exE
 
 # Load relevant modules
 module load singularity
+unset SINGULARITY_BINPATH
+#echo "Listing all singularity global variables"
+#env | grep "SINGULARITY"
+#echo "End listing all singularity global variables"
+unset SINGULARITYENV_I_MPI_ROOT
+unset SINGULARITY_CACHEDIR
+unset MAALI_SINGULARITY_HOME
+unset SINGULARITY_BINDPATH
+unset SINGULARITYENV_FI_PROVIDER_PATH
+unset SINGULARITYENV_LD_LIBRARY_PATH
 
 # Incase of failure
-trap 'ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -s Failed -l {{DB_dir}}/log_image.sqlite"' ERR
+trap 'ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -l {{DB_dir}}/log_image.sqlite --status Failed --note \"Failed during post imaging\""' ERR
 
 # Move to the temporary working directory on the NVMe
 cd {{tmp_dir}}
-cp {{pipeline_dir}}/pipeline_scripts/* .
+#cp {{pipeline_dir}}/pipeline_scripts/* .
+cp /software/projects/mwasci/awaszewski/pipeline_scripts/* ./
 
 # Move relevant files onto nvme
 date -Iseconds
@@ -40,7 +51,7 @@ if [ ! -s {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}.metafits ]; then
     wget http://ws.mwatelescope.org/metadata/fits?obs_id={{obsid}} -O {{obsid}}.metafits
 else
     #cp {{metafits_dir}}/{{obsid}}.metafits ./
-	cp {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}.metafits ./
+    cp {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}.metafits ./
 fi
 
 #########################
@@ -108,4 +119,4 @@ date -Iseconds
 
 # Update database to show that observation has finished processing
 # ssh mwa-solar "export DB_FILE={{DB_dir}}/log.sqlite; python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -s Completed" || echo "Log file update failed"
-ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -s Completed -l {{DB_dir}}/log_image.sqlite" || echo "Log file update failed}"	
+ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} --status "Done" -l {{DB_dir}}/log_image.sqlite" || echo "Log file update failed}"	

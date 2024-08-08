@@ -17,9 +17,9 @@ DB_dir = "/data/awaszewski/ips/db/"
 n_core = 38
 year = args.year
 freq = "121-132"
-pols:
-        - XX
-        - YY
+#pols:
+#        - XX
+#        - YY
 container = "/scratch/mwasci/awaszewski/ips_post.img"
 mem = 50
 
@@ -141,6 +141,8 @@ def gen_post_image(obsid, asvo):
 
     # Load relevant modules
     module load singularity
+    module use /pawsey/mwa_sles12sp5/modulefiles/python
+    module load python scipy astropy h5py
 
     # Incase of failure
     trap 'ssh mwa-solar "python3 {{DB_dir}}/db_update_log.py -o {{obsid}} -s Failed -l {{DB_dir}}/log_image.sqlite"' ERR
@@ -152,8 +154,8 @@ def gen_post_image(obsid, asvo):
     # Move relevant files onto nvme
     date -Iseconds
     rsync -a {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}.hdf5 \
-        {% for p in pols %}{{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}_{{freq}}-{{p}}-image.fits \
-        {% endfor %} ./
+            {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}_{{freq}}-XX-image.fits \
+            {{pipeline_dir}}/{{year}}/{{obsid}}/{{obsid}}_{{freq}}-YY-image.fits ./
     date -Iseconds
 
     # Locate metafits file
@@ -168,6 +170,8 @@ def gen_post_image(obsid, asvo):
     # Continuum and abs scale
     #########################
     date -Iseconds
+
+    
 
     {% for pol in pols %}
     singularity exec -B $PWD {{container}} BANE --noclobber --compress {{obsid}}_{{freq}}-{{pol}}-image.fits
